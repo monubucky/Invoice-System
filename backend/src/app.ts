@@ -8,6 +8,8 @@ import dotenv from 'dotenv';
 import authRoutes from './routes/auth.routes';
 import businessRoutes from './routes/business.routes';
 import { errorHandler } from './middleware/errorHandler';
+import clientRoutes from './routes/client.routes';
+
 
 dotenv.config();
 
@@ -23,6 +25,7 @@ app.use(cors({
 app.use(express.json());
 app.use(cookieParser());
 app.use(morgan('dev'));
+app.use('/api/clients', clientRoutes);
 
 // Health check
 app.get('/health', (req, res) => {

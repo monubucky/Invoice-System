@@ -25,5 +25,24 @@ export const updateProfileSchema = z.object({
   email: z.string().email().optional(),
 });
 
-export type RegisterInput = z.infer<typeof registerSchema>;
-export type LoginInput = z.infer<typeof loginSchema>;
+export const createClientSchema = z.object({
+  name: z.string().min(2, 'Name must be at least 2 characters'),
+  email: z.string().email('Invalid email address'),
+  phone: z.string().optional(),
+  address: z.string().optional(),
+  taxId: z.string().optional(),
+});
+
+export const updateClientSchema = createClientSchema.partial();
+
+export const clientQuerySchema = z.object({
+  page: z.string().optional().default('1'),
+  limit: z.string().optional().default('10'),
+  search: z.string().optional(),
+  sortBy: z.enum(['name', 'email', 'createdAt']).optional().default('createdAt'),
+  sortOrder: z.enum(['asc', 'desc']).optional().default('desc'),
+});
+
+export type CreateClientInput = z.infer<typeof createClientSchema>;
+export type UpdateClientInput = z.infer<typeof updateClientSchema>;
+export type ClientQueryInput = z.infer<typeof clientQuerySchema>;
