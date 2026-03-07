@@ -9,6 +9,7 @@ import authRoutes from './routes/auth.routes';
 import businessRoutes from './routes/business.routes';
 import { errorHandler } from './middleware/errorHandler';
 import clientRoutes from './routes/client.routes';
+import invoiceRoutes from './routes/invoice.routes'
 
 
 dotenv.config();
@@ -26,6 +27,7 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(morgan('dev'));
 app.use('/api/clients', clientRoutes);
+app.use('/api/invoices', invoiceRoutes);
 
 // Health check
 app.get('/health', (req, res) => {

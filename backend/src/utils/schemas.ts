@@ -43,6 +43,52 @@ export const clientQuerySchema = z.object({
   sortOrder: z.enum(['asc', 'desc']).optional().default('desc'),
 });
 
+export const invoiceItemSchema = z.object({
+  description: z.string().min(1, 'Description is required'),
+  quantity: z.number().positive('Quantity must be positive'),
+  unitPrice: z.number().positive('Unit price must be positive'),
+});
+
+export const createInvoiceSchema = z.object({
+  clientId: z.string().uuid('Invalid client ID'),
+  issueDate: z.string().datetime(),
+  dueDate: z.string().datetime(),
+  items: z.array(invoiceItemSchema).min(1, 'At least one item is required'),
+  taxRate: z.number().min(0).max(100).optional().default(0),
+  discount: z.number().min(0).optional().default(0),
+  notes: z.string().optional(),
+  isRecurring: z.boolean().optional().default(false),
+  recurringCycle: z.enum(['weekly', 'monthly', 'yearly']).optional(),
+});
+
+export const updateInvoiceSchema = createInvoiceSchema.partial();
+
+export const invoiceQuerySchema = z.object({
+  page: z.string().optional().default('1'),
+  limit: z.string().optional().default('10'),
+  search: z.string().optional(),
+  status: z.enum([
+    'DRAFT',
+    'SENT',
+    'VIEWED',
+    'PARTIALLY_PAID',
+    'PAID',
+    'OVERDUE',
+    'CANCELLED',
+  ]).optional(),
+  clientId: z.string().optional(),
+  startDate: z.string().optional(),
+  endDate: z.string().optional(),
+  sortBy: z.enum(['createdAt', 'dueDate', 'total', 'invoiceNumber']).optional().default('createdAt'),
+  sortOrder: z.enum(['asc', 'desc']).optional().default('desc'),
+});
+
+export type RegisterInput = z.infer<typeof registerSchema>;
+export type LoginInput = z.infer<typeof loginSchema>;
+export type CreateInvoiceInput = z.infer<typeof createInvoiceSchema>;
+export type UpdateInvoiceInput = z.infer<typeof updateInvoiceSchema>;
+export type InvoiceQueryInput = z.infer<typeof invoiceQuerySchema>;
+
 export type CreateClientInput = z.infer<typeof createClientSchema>;
 export type UpdateClientInput = z.infer<typeof updateClientSchema>;
 export type ClientQueryInput = z.infer<typeof clientQuerySchema>;

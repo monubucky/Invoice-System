@@ -319,9 +319,9 @@ GitHub Actions pipeline runs on every push to `main`:
 ## 🛣️ Roadmap
 
 - [x] Phase 1 — Project Setup
-- [ ] Phase 2 — Auth & Business Setup
-- [ ] Phase 3 — Client Management
-- [ ] Phase 4 — Invoice Management
+- [x] Phase 2 — Auth & Business Setup
+- [x] Phase 3 — Client Management
+- [x] Phase 4 — Invoice Management
 - [ ] Phase 5 — PDF & Email
 - [ ] Phase 6 — Payments & Stripe
 - [ ] Phase 7 — Automated Reminders

@@ -28,7 +28,7 @@ export const getClient = async (
   res: Response
 ): Promise<void> => {
   try {
-    const client = await getClientById(req.params.id, req.user!.businessId);
+    const client = await getClientById(req.params.id[0], req.user!.businessId);
     res.status(200).json({ client });
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : 'Failed to fetch client';
@@ -56,7 +56,7 @@ export const updateExistingClient = async (
 ): Promise<void> => {
   try {
     const client = await updateClient(
-      req.params.id,
+      req.params.id[0],
       req.user!.businessId,
       req.body
     );
@@ -73,7 +73,7 @@ export const deleteExistingClient = async (
   res: Response
 ): Promise<void> => {
   try {
-    const result = await deleteClient(req.params.id, req.user!.businessId);
+    const result = await deleteClient(req.params.id[0], req.user!.businessId);
     res.status(200).json(result);
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : 'Failed to delete client';
