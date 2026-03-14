@@ -8,6 +8,8 @@ import {
   sendExistingInvoice,
   duplicateExistingInvoice,
   getSummary,
+  downloadPDF,
+  sendInvoiceByEmail,
 } from '../controllers/invoice.controller';
 import { authenticate } from '../middleware/auth.middleware';
 import { authorize } from '../middleware/role.middleware';
@@ -36,5 +38,8 @@ router.put(
 router.delete('/:id', authorize('ADMIN', 'ACCOUNTANT'), deleteExistingInvoice);
 router.post('/:id/send', authorize('ADMIN', 'ACCOUNTANT'), sendExistingInvoice);
 router.post('/:id/duplicate', authorize('ADMIN', 'ACCOUNTANT'), duplicateExistingInvoice);
+
+router.get('/:id/pdf', downloadPDF);
+router.post('/:id/send-email', authorize('ADMIN', 'ACCOUNTANT'), sendInvoiceByEmail);
 
 export default router;

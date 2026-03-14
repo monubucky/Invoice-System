@@ -11,6 +11,10 @@ import {
   getInvoiceSummary,
 } from '../services/invoice.service';
 import { invoiceQuerySchema } from '../utils/schemas';
+import {
+  getInvoicePDF,
+  sendInvoiceWithEmail,
+} from '../services/invoice.service';
 
 export const listInvoices = async (
   req: AuthRequest,
@@ -121,5 +125,45 @@ export const getSummary = async (
     res.status(200).json({ summary });
   } catch {
     res.status(500).json({ error: 'Failed to fetch summary' });
+  }
+};
+
+export const downloadPDF = async (
+  req: AuthRequest,
+  res: Response
+): Promise<void> => {
+  try {
+    const { pdfBuffer, invoiceNumber } = await getInvoicePDF(
+      req.params.id[0],
+      req.user!.businessId
+    );
+
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader(
+      'Content-Disposition',
+      `attachment; filename="${invoiceNumber}.pdf"`
+    );
+    res.send(pdfBuffer);
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Failed to generate PDF';
+    const status = message === 'Invoice not found' ? 404 : 500;
+    res.status(status).json({ error: message });
+  }
+};
+
+export const sendInvoiceByEmail = async (
+  req: AuthRequest,
+  res: Response
+): Promise<void> => {
+  try {
+    const result = await sendInvoiceWithEmail(
+      req.params.id[0],
+      req.user!.businessId
+    );
+    res.status(200).json(result);
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Failed to send invoice';
+    const status = message === 'Invoice not found' ? 404 : 400;
+    res.status(status).json({ error: message });
   }
 };

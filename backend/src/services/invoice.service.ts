@@ -6,6 +6,8 @@ import {
   UpdateInvoiceInput,
   InvoiceQueryInput,
 } from '../utils/schemas';
+import { generateInvoiceHTML, generatePDF } from './pdf.service';
+import { sendInvoiceEmail } from './email.service';
 
 // ─── List Invoices ────────────────────────────────────────────────────────────
 export const getInvoices = async (
@@ -28,11 +30,11 @@ export const getInvoices = async (
     }),
     ...(query.startDate &&
       query.endDate && {
-        createdAt: {
-          gte: new Date(query.startDate),
-          lte: new Date(query.endDate),
-        },
-      }),
+      createdAt: {
+        gte: new Date(query.startDate),
+        lte: new Date(query.endDate),
+      },
+    }),
   };
 
   const [invoices, total] = await Promise.all([
@@ -338,6 +340,7 @@ export const getInvoiceSummary = async (businessId: string) => {
       }),
     ]);
 
+
   return {
     total,
     draft,
@@ -347,4 +350,83 @@ export const getInvoiceSummary = async (businessId: string) => {
     totalRevenue: totalRevenue._sum.amount || 0,
     outstanding: outstanding._sum.total || 0,
   };
+
+
+};
+// ─── Download PDF ─────────────────────────────────────────────────────────────
+export const getInvoicePDF = async (id: string, businessId: string) => {
+  const invoice = await prisma.invoice.findFirst({
+    where: { id, businessId },
+    include: {
+      client: true,
+      items: true,
+      payments: true,
+      business: true,
+    },
+  });
+
+  if (!invoice) throw new Error('Invoice not found');
+
+  const html = generateInvoiceHTML(
+    invoice as any,
+    invoice.business?.name || 'Your Business',
+    invoice.business?.currency || 'USD'
+  );
+
+  const pdfBuffer = await generatePDF(html);
+  return { pdfBuffer, invoiceNumber: invoice.invoiceNumber };
+};
+
+// ─── Send Invoice with PDF ────────────────────────────────────────────────────
+export const sendInvoiceWithEmail = async (id: string, businessId: string) => {
+  const invoice = await prisma.invoice.findFirst({
+    where: { id, businessId },
+    include: {
+      client: true,
+      items: true,
+      payments: true,
+      business: true,
+    },
+  });
+
+  if (!invoice) throw new Error('Invoice not found');
+  if (!['DRAFT', 'SENT'].includes(invoice.status)) {
+    throw new Error('Invoice cannot be sent in its current status');
+  }
+
+  // Generate PDF
+  const html = generateInvoiceHTML(
+    invoice as any,
+    invoice.business?.name || 'Your Business',
+    invoice.business?.currency || 'USD'
+  );
+  const pdfBuffer = await generatePDF(html);
+
+  // Build portal URL
+  const portalUrl = `${process.env.FRONTEND_URL}/portal/${invoice.publicToken}`;
+
+  // Send email
+  await sendInvoiceEmail({
+    to: invoice.client.email,
+    clientName: invoice.client.name,
+    businessName: invoice.business?.name || 'Your Business',
+    invoiceNumber: invoice.invoiceNumber,
+    total: Number(invoice.total),
+    dueDate: new Intl.DateTimeFormat('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    }).format(new Date(invoice.dueDate)),
+    portalUrl,
+    pdfBuffer,
+    currency: invoice.business?.currency || 'USD',
+  });
+
+  // Update status to SENT
+  await prisma.invoice.update({
+    where: { id },
+    data: { status: 'SENT' },
+  });
+
+  return { message: 'Invoice sent successfully' };
 };

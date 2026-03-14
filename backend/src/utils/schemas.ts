@@ -83,6 +83,20 @@ export const invoiceQuerySchema = z.object({
   sortOrder: z.enum(['asc', 'desc']).optional().default('desc'),
 });
 
+export const recordPaymentSchema = z.object({
+  invoiceId: z.string().uuid('Invalid invoice ID'),
+  amount: z.number().positive('Amount must be positive'),
+  method: z.enum(['CASH', 'BANK_TRANSFER', 'STRIPE', 'CHECK', 'OTHER']),
+  reference: z.string().optional(),
+  paidAt: z.string().datetime().optional(),
+});
+
+export const stripeCheckoutSchema = z.object({
+  invoiceId: z.string().uuid('Invalid invoice ID'),
+});
+
+export type RecordPaymentInput = z.infer<typeof recordPaymentSchema>;
+
 export type RegisterInput = z.infer<typeof registerSchema>;
 export type LoginInput = z.infer<typeof loginSchema>;
 export type CreateInvoiceInput = z.infer<typeof createInvoiceSchema>;

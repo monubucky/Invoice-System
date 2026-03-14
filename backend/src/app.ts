@@ -7,17 +7,26 @@ import dotenv from 'dotenv';
 
 import authRoutes from './routes/auth.routes';
 import businessRoutes from './routes/business.routes';
-import { errorHandler } from './middleware/errorHandler';
 import clientRoutes from './routes/client.routes';
-import invoiceRoutes from './routes/invoice.routes'
-
+import invoiceRoutes from './routes/invoice.routes';
+import paymentRoutes from './routes/payment.routes';
+import portalRoutes from './routes/portal.routes';
+import { errorHandler } from './middleware/errorHandler';
+import { stripeWebhook } from './controllers/payment.controller';
 
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Middleware
+// ⚠️ Stripe webhook needs raw body — must be registered BEFORE express.json()
+app.post(
+  '/api/payments/stripe/webhook',
+  express.raw({ type: 'application/json' }),
+  stripeWebhook
+);
+
+// Global Middleware
 app.use(helmet());
 app.use(cors({
   origin: process.env.FRONTEND_URL || 'http://localhost:3000',
@@ -26,8 +35,6 @@ app.use(cors({
 app.use(express.json());
 app.use(cookieParser());
 app.use(morgan('dev'));
-app.use('/api/clients', clientRoutes);
-app.use('/api/invoices', invoiceRoutes);
 
 // Health check
 app.get('/health', (req, res) => {
@@ -37,6 +44,10 @@ app.get('/health', (req, res) => {
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/business', businessRoutes);
+app.use('/api/clients', clientRoutes);
+app.use('/api/invoices', invoiceRoutes);
+app.use('/api/payments', paymentRoutes);
+app.use('/api/portal', portalRoutes);
 
 // 404 handler
 app.use('*path', (req, res) => {
