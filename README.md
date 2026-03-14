@@ -324,7 +324,7 @@ GitHub Actions pipeline runs on every push to `main`:
 - [x] Phase 4 — Invoice Management
 - [x] Phase 5 — PDF & Email
 - [x] Phase 6 — Payments & Stripe
-- [ ] Phase 7 — Automated Reminders
+- [x] Phase 7 — Automated Reminders
 - [ ] Phase 8 — Dashboard & Reports
 - [ ] Phase 9 — Recurring Invoices
 - [ ] Phase 10 — Polish & Deployment

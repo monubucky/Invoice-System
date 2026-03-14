@@ -13,6 +13,8 @@ import paymentRoutes from './routes/payment.routes';
 import portalRoutes from './routes/portal.routes';
 import { errorHandler } from './middleware/errorHandler';
 import { stripeWebhook } from './controllers/payment.controller';
+import reminderRoutes from './routes/reminder.routes';
+import { startReminderWorker } from './jobs/reminderWorker';
 
 dotenv.config();
 
@@ -48,6 +50,7 @@ app.use('/api/clients', clientRoutes);
 app.use('/api/invoices', invoiceRoutes);
 app.use('/api/payments', paymentRoutes);
 app.use('/api/portal', portalRoutes);
+app.use('/api/reminders', reminderRoutes);
 
 // 404 handler
 app.use('*path', (req, res) => {
@@ -56,6 +59,8 @@ app.use('*path', (req, res) => {
 
 // Error handler
 app.use(errorHandler);
+
+startReminderWorker();
 
 app.listen(PORT, () => {
   console.log(`🚀 Server running on http://localhost:${PORT}`);

@@ -2,6 +2,7 @@ import Stripe from 'stripe';
 import prisma from '../config/db';
 import stripe from '../config/stripe';
 import { RecordPaymentInput } from '../utils/schemas';
+import { cancelReminders } from './reminder.service';
 
 // ─── Helper: Update Invoice Status After Payment ──────────────────────────────
 const updateInvoiceStatus = async (invoiceId: string): Promise<void> => {
@@ -31,6 +32,9 @@ const updateInvoiceStatus = async (invoiceId: string): Promise<void> => {
     where: { id: invoiceId },
     data: { status: status as any },
   });
+  if (status === 'PAID') {
+    await cancelReminders(invoiceId);
+  }
 };
 
 // ─── List Payments ────────────────────────────────────────────────────────────

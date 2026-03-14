@@ -8,6 +8,8 @@ import {
 } from '../utils/schemas';
 import { generateInvoiceHTML, generatePDF } from './pdf.service';
 import { sendInvoiceEmail } from './email.service';
+import { scheduleReminders } from './reminder.service';
+
 
 // ─── List Invoices ────────────────────────────────────────────────────────────
 export const getInvoices = async (
@@ -252,6 +254,7 @@ export const sendInvoice = async (id: string, businessId: string) => {
     where: { id },
     data: { status: 'SENT' },
   });
+  await scheduleReminders(id);
 
   return updated;
 };
@@ -427,6 +430,6 @@ export const sendInvoiceWithEmail = async (id: string, businessId: string) => {
     where: { id },
     data: { status: 'SENT' },
   });
-
+  await scheduleReminders(id);
   return { message: 'Invoice sent successfully' };
 };
