@@ -15,6 +15,8 @@ import { errorHandler } from './middleware/errorHandler';
 import { stripeWebhook } from './controllers/payment.controller';
 import reminderRoutes from './routes/reminder.routes';
 import { startReminderWorker } from './jobs/reminderWorker';
+import reportRoutes from './routes/report.routes';
+
 
 dotenv.config();
 
@@ -51,6 +53,8 @@ app.use('/api/invoices', invoiceRoutes);
 app.use('/api/payments', paymentRoutes);
 app.use('/api/portal', portalRoutes);
 app.use('/api/reminders', reminderRoutes);
+app.use('/api/reports', reportRoutes);
+
 
 // 404 handler
 app.use('*path', (req, res) => {

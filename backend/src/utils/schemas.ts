@@ -95,6 +95,16 @@ export const stripeCheckoutSchema = z.object({
   invoiceId: z.string().uuid('Invalid invoice ID'),
 });
 
+export const reportQuerySchema = z.object({
+  year: z.string().optional().default(String(new Date().getFullYear())),
+  month: z.string().optional(),
+  startDate: z.string().optional(),
+  endDate: z.string().optional(),
+  currency: z.string().optional().default('USD'),
+});
+
+export type ReportQueryInput = z.infer<typeof reportQuerySchema>;
+
 export type RecordPaymentInput = z.infer<typeof recordPaymentSchema>;
 
 export type RegisterInput = z.infer<typeof registerSchema>;
