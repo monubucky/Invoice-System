@@ -1,13 +1,9 @@
 export type Role = 'ADMIN' | 'ACCOUNTANT' | 'VIEWER';
 
 export type InvoiceStatus =
-  | 'DRAFT'
-  | 'SENT'
-  | 'VIEWED'
-  | 'PARTIALLY_PAID'
-  | 'PAID'
-  | 'OVERDUE'
-  | 'CANCELLED';
+  | 'DRAFT' | 'SENT' | 'VIEWED'
+  | 'PARTIALLY_PAID' | 'PAID'
+  | 'OVERDUE' | 'CANCELLED';
 
 export interface User {
   id: string;
@@ -23,6 +19,7 @@ export interface Business {
   logo?: string;
   address?: string;
   currency: string;
+  taxId?: string;
 }
 
 export interface Client {
@@ -31,6 +28,9 @@ export interface Client {
   email: string;
   phone?: string;
   address?: string;
+  taxId?: string;
+  createdAt: string;
+  _count?: { invoices: number };
 }
 
 export interface InvoiceItem {
@@ -55,4 +55,36 @@ export interface Invoice {
   total: number;
   items: InvoiceItem[];
   notes?: string;
+  publicToken: string;
+  amountPaid?: number;
+  balanceDue?: number;
+}
+
+export interface Payment {
+  id: string;
+  invoiceId: string;
+  amount: number;
+  method: string;
+  reference?: string;
+  paidAt: string;
+}
+
+export interface DashboardSummary {
+  counts: {
+    clients: number;
+    invoices: number;
+    draft: number;
+    sent: number;
+    paid: number;
+    overdue: number;
+  };
+  revenue: {
+    allTime: number;
+    thisMonth: number;
+    lastMonth: number;
+    growth: number;
+  };
+  outstanding: number;
+  overdueAmount: number;
+  recentInvoices: Invoice[];
 }
