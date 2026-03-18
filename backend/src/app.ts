@@ -16,6 +16,8 @@ import { stripeWebhook } from './controllers/payment.controller';
 import reminderRoutes from './routes/reminder.routes';
 import { startReminderWorker } from './jobs/reminderWorker';
 import reportRoutes from './routes/report.routes';
+import recurringRoutes from './routes/recurring.routes';
+import { startCronJobs } from './jobs/cronJobs';
 
 
 dotenv.config();
@@ -54,6 +56,11 @@ app.use('/api/payments', paymentRoutes);
 app.use('/api/portal', portalRoutes);
 app.use('/api/reminders', reminderRoutes);
 app.use('/api/reports', reportRoutes);
+// Add route
+app.use('/api/recurring', recurringRoutes);
+
+// Start cron jobs
+startCronJobs();
 
 
 // 404 handler

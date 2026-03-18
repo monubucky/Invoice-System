@@ -103,6 +103,20 @@ export const reportQuerySchema = z.object({
   currency: z.string().optional().default('USD'),
 });
 
+export const recurringConfigSchema = z.object({
+  clientId: z.string().uuid('Invalid client ID'),
+  issueDate: z.string().datetime(),
+  dueDate: z.string().datetime(),
+  items: z.array(invoiceItemSchema).min(1, 'At least one item is required'),
+  taxRate: z.number().min(0).max(100).optional().default(0),
+  discount: z.number().min(0).optional().default(0),
+  notes: z.string().optional(),
+  recurringCycle: z.enum(['weekly', 'monthly', 'yearly']),
+  recurringEndDate: z.string().datetime().optional(),
+});
+
+export type RecurringConfigInput = z.infer<typeof recurringConfigSchema>;
+
 export type ReportQueryInput = z.infer<typeof reportQuerySchema>;
 
 export type RecordPaymentInput = z.infer<typeof recordPaymentSchema>;
