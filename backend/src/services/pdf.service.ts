@@ -1,12 +1,46 @@
 import puppeteer from 'puppeteer';
-import { Invoice, Client, InvoiceItem, Business, Payment } from '@prisma/client';
 
-type InvoiceWithRelations = Invoice & {
+interface InvoiceItem {
+  description: string;
+  quantity: any;
+  unitPrice: any;
+  total: any;
+}
+
+interface Client {
+  name: string;
+  email: string;
+  phone?: string | null;
+  address?: string | null;
+  taxId?: string | null;
+}
+
+interface Business {
+  name?: string;
+  currency?: string;
+}
+
+interface Payment {
+  amount: any;
+}
+
+interface InvoiceWithRelations {
+  id: string;
+  invoiceNumber: string;
+  status: string;
+  issueDate: Date;
+  dueDate: Date;
+  subtotal: any;
+  taxRate: any;
+  taxAmount: any;
+  discount: any;
+  total: any;
+  notes?: string | null;
   client: Client;
   items: InvoiceItem[];
-  business?: Business;
+  business?: Business | null;
   payments?: Payment[];
-};
+}
 
 const formatCurrency = (amount: number, currency: string = 'USD'): string => {
   return new Intl.NumberFormat('en-US', {
@@ -43,11 +77,11 @@ export const generateInvoiceHTML = (
 ): string => {
   const statusColor = getStatusColor(invoice.status);
   const amountPaid = invoice.payments?.reduce(
-    (sum: number, p: any) => sum + Number(p.amount), 0
+    (sum: number, p: Payment) => sum + Number(p.amount), 0
   ) || 0;
   const balanceDue = Number(invoice.total) - amountPaid;
 
-  const itemRows = invoice.items.map((item) => `
+  const itemRows = invoice.items.map((item: InvoiceItem) => `
     <tr>
       <td style="padding: 12px 16px; border-bottom: 1px solid #F3F4F6; color: #374151;">
         ${item.description}
