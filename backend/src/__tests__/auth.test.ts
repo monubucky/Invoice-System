@@ -1,5 +1,8 @@
 import request from 'supertest';
 import app from '../app';
+import prisma from '../config/db';
+import redis from '../config/redis';
+
 
 describe('Auth Endpoints', () => {
   const testUser = {
@@ -53,4 +56,9 @@ describe('Auth Endpoints', () => {
     const res = await request(app).get('/api/auth/me');
     expect(res.status).toBe(401);
   });
+});
+
+afterAll(async () => {
+  await prisma.$disconnect();
+  await redis.quit();
 });
